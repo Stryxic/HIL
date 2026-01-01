@@ -1,7 +1,7 @@
 # Hilbert Information Lab (HIL): PhD Supplementary Repository
 
 This repository is the **canonical supplementary artefact** accompanying the PhD thesis  
-**“Hilbert Epistemic Fields and Informational Stability”**.
+**“Detecting Disinformation Campaigns in Social Media”**.
 
 It contains the final and authoritative materials supporting the thesis, including:
 
