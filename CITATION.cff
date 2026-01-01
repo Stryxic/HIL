@@ -1,0 +1,72 @@
+cff-version: 1.2.0
+message: >-
+  If you use this repository in academic work, please cite both the PhD thesis
+  and this repository. This repository is a frozen supplementary artefact for
+  the doctoral submission and is not intended to be a production system.
+type: software
+title: "Hilbert Information Lab (HIL): PhD Supplementary Repository"
+abstract: >-
+  Canonical supplementary repository accompanying the PhD thesis “Detecting Disinformation Campaigns in Social Media”. Contains the final manuscript,
+  formal theory, reference implementation of the Hilbert Information Lab (HIL),
+  diagrams, and empirical traces supporting the thesis claims. HIL operationalises
+  a theory-driven, label-free framework for diagnosing epistemic instability in
+  high-dimensional semantic fields.
+authors:
+  - family-names: "Fox"
+    given-names: "Swift"
+    affiliation: "Royal Holloway, University of London"
+    orcid: "https://orcid.org/REPLACE_WITH_ORCID"
+repository-code: "https://github.com/Stryxic/HIL/"
+url: "https://github.com/Stryxic/HIL/"
+license: "Apache-2.0"
+keywords:
+  - disinformation
+  - misinformation
+  - formal epistemology
+  - information theory
+  - computational geometry
+  - spectral semantics
+  - hilbert space
+  - epistemic stability
+  - persistent homology
+  - topological data analysis
+  - unsupervised detection
+  - interpretability
+  - research software
+  - reproducibility
+  - federation
+  - diagnostics
+version: "v1.0-phd"
+date-released: "2026_01_01"
+
+preferred-citation:
+  type: thesis
+  title: "Detecting Disinformation Campaigns in Social Media"
+  authors:
+    - family-names: "Fox"
+      given-names: "Swift"
+      orcid: "https://orcid.org/REPLACE_WITH_ORCID"
+      affiliation: "Royal Holloway, University of London"
+  institution:
+    name: "Royal Holloway, University of London"
+  date: "REPLACE_WITH_THESIS_SUBMISSION_DATE_YYYY-MM-DD"
+  degree: "PhD"
+  url: "https://github.com/Stryxic/HIL/Thesis"
+  notes: >-
+    This thesis is the authoritative statement of the theoretical framework and
+    empirical claims. The repository provides supporting code, diagrams, and
+    frozen traces aligned to the doctoral submission.
+
+references:
+  - type: software
+    title: "Hilbert Information Lab (HIL): PhD Supplementary Repository"
+    authors:
+      - family-names: "Fox"
+        given-names: "Swift"
+        orcid: "https://orcid.org/REPLACE_WITH_ORCID"
+        affiliation: "Royal Holloway, University of London"
+    url: "https://github.com/Stryxic/HIL/"
+    version: "v1.0-phd"
+    notes: >-
+      Frozen supplementary artefact aligned to the doctoral submission. Contains
+      thesis text, formal theory, reference implementation, diagrams, and traces.
