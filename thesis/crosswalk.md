@@ -11,12 +11,22 @@ This document provides a **systematic cross-reference** between:
   *“Detecting Disinformation Campaigns in Social Media”*, and
 - the materials contained in this repository.
 
-Its purpose is to enable examiners and readers to:
-- locate the formal and computational instantiation of specific claims,
+Its purpose is to enable examiners, readers, and future custodians to:
+- locate the formal and computational instantiation of specific thesis claims,
 - inspect supporting evidence without re-executing the full system,
-- and verify coherence between theory, implementation, and empirical results.
+- and verify coherence between theory, implementation, and empirical traces.
 
-This crosswalk is part of the scholarly record and should be read alongside the thesis manuscript.
+This crosswalk is part of the **doctoral scholarly record**. It does not introduce new claims and does not extend the thesis.
+
+---
+
+## Canonical Status
+
+- The **thesis manuscript** is the authoritative source for all theoretical and interpretive claims.
+- This crosswalk documents how those claims are witnessed in the repository at the time of doctoral submission.
+- No post-submission additions or downstream work should be read back into this mapping.
+
+If discrepancies arise, the thesis takes precedence.
 
 ---
 
@@ -24,28 +34,34 @@ This crosswalk is part of the scholarly record and should be read alongside the 
 
 Each section below corresponds to a **chapter or appendix of the thesis** and lists:
 
-- the primary conceptual claim,
-- the relevant repository location(s),
-- and the evidential artefacts supporting that claim.
+- the primary conceptual focus of that chapter,
+- the relevant repository artefacts,
+- and the evidential role those artefacts play.
 
-The mapping is **many-to-many**: a single concept may appear in multiple forms (theory, code, trace), and a single artefact may support multiple claims.
+The mapping is intentionally **many-to-many**:
+- a single concept may appear across theory, code, diagrams, and traces,
+- a single artefact may support multiple claims.
+
+Presence in the repository indicates **supporting evidence or illustration**, not independent authority.
 
 ---
 
-## Chapter 1 — Introduction and Research Framing
+## Chapter 1 — Introduction and Epistemic Framing
 
 **Thesis focus**
-- Reframing disinformation as a structural epistemic phenomenon
-- Motivation for label-free, theory-driven detection
+- Motivation for structural, non-prescriptive epistemic diagnostics
+- Separation of informational structure from truth, belief, and intent
+- Rationale for theory-first, label-free analysis
 
 **Repository artefacts**
-- `README.md` — project orientation and scope
-- `CHARTER.md` — epistemic boundaries and non-goals
+- `README.md` — orientation, scope, and intent
+- `CHARTER.md` — epistemic and governance boundaries
+- `NON_CLAIMS.md` — explicit limits of what is not asserted
 - `theory/kit-principles.md` — foundational epistemic commitments
 
 **Evidential role**
-- Establishes intent, scope, and interpretive constraints
-- No empirical artefacts required at this stage
+- Establishes scope, framing, and interpretive constraints  
+- No empirical artefacts are required at this stage
 
 ---
 
@@ -54,6 +70,7 @@ The mapping is **many-to-many**: a single concept may appear in multiple forms (
 **Thesis focus**
 - Distinction between data, information, and knowledge
 - Stability, coherence, and constraint as epistemic primitives
+- Diagnostic rather than normative epistemology
 
 **Repository artefacts**
 - `theory/kit-principles.md`
@@ -64,17 +81,17 @@ The mapping is **many-to-many**: a single concept may appear in multiple forms (
 - `code/hil/metrics/coherence.py`
 
 **Evidential role**
-- Formal definitions
-- Conceptual grounding for later field construction
+- Provides formal definitions and conceptual grounding  
+- Establishes primitives used throughout later chapters
 
 ---
 
 ## Chapter 3 — Hilbert Epistemic Field (HEF) Formalism
 
 **Thesis focus**
-- Spectral–semantic embedding space
-- Field representation of informational elements
-- Entropy, coherence, potential, and stability operators
+- Hilbert-space representation as a formal modelling choice
+- Field-based representation of informational relations
+- Operators for entropy, coherence, potential, and stability
 
 **Repository artefacts**
 - `theory/hef-formalism.md`
@@ -86,16 +103,17 @@ The mapping is **many-to-many**: a single concept may appear in multiple forms (
 - `code/hil/field/potential.py`
 
 **Evidential role**
-- Demonstrates computability of theoretical constructs
-- Connects mathematical formalism to executable structures
+- Demonstrates computability and internal coherence  
+- Connects mathematical formalism to executable structures  
+- Does not assert ontological or cognitive claims
 
 ---
 
 ## Chapter 4 — Informational Elements, Molecules, and Structure
 
 **Thesis focus**
-- Element construction and centroid representations
-- Molecule and compound structures
+- Construction of informational elements
+- Molecules and higher-order informational structure
 - Structural interpretation of narrative formation
 
 **Repository artefacts**
@@ -107,16 +125,17 @@ The mapping is **many-to-many**: a single concept may appear in multiple forms (
 - `code/hil/graph/molecule.py`
 
 **Evidential role**
-- Shows how higher-order informational structure emerges from embeddings
+- Illustrates how complex informational structure emerges  
+- Supports structural, non-agentic interpretation
 
 ---
 
-## Chapter 5 — Stability, Regimes, and Epistemic Behaviour
+## Chapter 5 — Stability, Regimes, and Informational Behaviour
 
 **Thesis focus**
-- Stability as a diagnostic quantity
+- Stability as a structural diagnostic quantity
 - Informational, misinformational, and disinformational regimes
-- Structural, not semantic, detection
+- Absence of semantic labels or supervised classification
 
 **Repository artefacts**
 - `theory/regimes.md`
@@ -128,19 +147,22 @@ The mapping is **many-to-many**: a single concept may appear in multiple forms (
 - `traces/collapse/`
 
 Each trace directory contains:
-- frozen configuration,
-- run manifest,
-- stability and entropy outputs,
+- frozen configuration and manifests,
+- stability, entropy, and coherence outputs,
 - regime visualisations.
+
+**Evidential role**
+- Supports claims about structural behaviour and regimes  
+- Serves as inspectable evidence, not benchmarks
 
 ---
 
-## Chapter 6 — Empirical Evaluation and Case Studies
+## Chapter 6 — Empirical Studies and Diagnostics
 
 **Thesis focus**
-- Behaviour of the system across contrasting corpora
+- Behaviour across contrasting corpora
 - Detection of instability signatures
-- Absence of supervised labels
+- Reproducibility without re-execution
 
 **Repository artefacts**
 - `code/notebooks/`
@@ -151,17 +173,16 @@ Each trace directory contains:
 - `code/notebooks/persistence_analysis.ipynb`
 
 **Evidential role**
-- Provides inspectable empirical support for claims
-- Demonstrates reproducibility via frozen artefacts
+- Enables inspection of empirical reasoning  
+- Demonstrates alignment between theory and observed structure
 
 ---
 
 ## Appendix A — Mathematical Details
 
 **Thesis focus**
-- Extended derivations
-- Operator definitions
-- Complexity considerations
+- Extended derivations and operator definitions
+- Formal properties and constraints
 
 **Repository artefacts**
 - `theory/hef-formalism.md`
@@ -171,6 +192,9 @@ Each trace directory contains:
 - Inline comments and docstrings in:
   - `code/hil/field/*.py`
   - `code/hil/metrics/*.py`
+
+**Evidential role**
+- Clarifies mathematical assumptions and implementation choices
 
 ---
 
@@ -184,16 +208,16 @@ Each trace directory contains:
 - `traces/*/outputs/`
 
 **Evidential role**
-- Mirrors and extends figures in the thesis
-- Provides raw outputs where space constraints prevented inclusion
+- Mirrors and supplements figures in the thesis  
+- Provides raw outputs where space constraints applied
 
 ---
 
-## Governance, Scale, and Federation (Conceptual)
+## Governance, Scale, and Federation (Conceptual Only)
 
 **Thesis focus**
 - Orthogonality to markets and politics
-- Non-acquirable, custodial governance
+- Non-acquirable epistemic authority
 - Federation as replication, not centralisation
 
 **Repository artefacts**
@@ -203,8 +227,8 @@ Each trace directory contains:
 - `diagrams/governance/`
 
 **Evidential role**
-- Conceptual and normative grounding
-- No operational claims are made in the thesis
+- Conceptual and boundary-setting only  
+- No operational, enforcement, or governance mechanisms are claimed
 
 ---
 
@@ -216,20 +240,20 @@ Each trace directory contains:
 - `config.yaml` files within trace directories
 
 **Evidential role**
-- Establishes provenance of results
+- Establishes lineage and provenance of results  
 - Enables inspection without rerunning full pipelines
 
 ---
 
 ## Final Note to Readers and Examiners
 
-This crosswalk is intended to make explicit that:
+This crosswalk exists to make explicit that:
 
 - theoretical claims are grounded in formal definitions,
-- formal definitions are operationalised in code,
+- formal definitions are witnessed by code,
 - and empirical claims are supported by frozen, inspectable artefacts.
 
-The repository should be read as a **coherent whole**, not as a standalone software project.
+The repository should be read as a **coherent scholarly archive**, not as a standalone software project or evolving system.
 
 ---
 
