@@ -1,16 +1,18 @@
 cff-version: 1.2.0
 message: >-
-  If you use this repository in academic work, please cite both the PhD thesis
-  and this repository. This repository is a frozen supplementary artefact for
-  the doctoral submission and is not intended to be a production system.
+  If you use this repository in academic work, please cite the PhD thesis as the
+  primary reference for all theoretical and interpretive claims. This repository
+  is a frozen supplementary artefact aligned to the doctoral submission and
+  should be cited as supporting material only.
 type: software
 title: "Hilbert Information Lab (HIL): PhD Supplementary Repository"
 abstract: >-
-  Canonical supplementary repository accompanying the PhD thesis “Detecting Disinformation Campaigns in Social Media”. Contains the final manuscript,
-  formal theory, reference implementation of the Hilbert Information Lab (HIL),
-  diagrams, and empirical traces supporting the thesis claims. HIL operationalises
-  a theory-driven, label-free framework for diagnosing epistemic instability in
-  high-dimensional semantic fields.
+  Supplementary repository accompanying the PhD thesis “Detecting Disinformation Campaigns in Social Media”. The repository contains the final doctoral
+  manuscript, formal theoretical exposition (Knowledge–Information Theory and
+  Hilbert Epistemic Fields), a reference implementation of the Hilbert
+  Information Lab (HIL), explanatory diagrams, and curated empirical traces.
+  The repository serves as an evidential and inspectable scholarly record and is
+  not intended as a production system, platform, or authoritative specification.
 authors:
   - family-names: "Fox"
     given-names: "Swift"
@@ -20,28 +22,23 @@ repository-code: "https://github.com/Stryxic/HIL/"
 url: "https://github.com/Stryxic/HIL/"
 license: "Apache-2.0"
 keywords:
-  - disinformation
-  - misinformation
   - formal epistemology
   - information theory
   - computational geometry
-  - spectral semantics
   - hilbert space
   - epistemic stability
-  - persistent homology
-  - topological data analysis
-  - unsupervised detection
+  - informational regimes
+  - diagnostic frameworks
   - interpretability
-  - research software
   - reproducibility
+  - research software
   - federation
-  - diagnostics
 version: "v1.0-phd"
-date-released: "2026_01_01"
+date-released: "2026-01-01"
 
 preferred-citation:
   type: thesis
-  title: "Detecting Disinformation Campaigns in Social Media"
+  title: "Hilbert Epistemic Fields and Informational Stability"
   authors:
     - family-names: "Fox"
       given-names: "Swift"
@@ -53,9 +50,9 @@ preferred-citation:
   degree: "PhD"
   url: "https://github.com/Stryxic/HIL/Thesis"
   notes: >-
-    This thesis is the authoritative statement of the theoretical framework and
-    empirical claims. The repository provides supporting code, diagrams, and
-    frozen traces aligned to the doctoral submission.
+    This thesis is the authoritative statement of the theoretical framework,
+    definitions, and empirical claims. The repository provides supporting code,
+    diagrams, and frozen empirical traces aligned to the doctoral submission.
 
 references:
   - type: software
@@ -68,5 +65,6 @@ references:
     url: "https://github.com/Stryxic/HIL/"
     version: "v1.0-phd"
     notes: >-
-      Frozen supplementary artefact aligned to the doctoral submission. Contains
-      thesis text, formal theory, reference implementation, diagrams, and traces.
+      Frozen supplementary artefact aligned to the PhD submission. Intended for
+      inspection, reproducibility, and evidential support only; not an
+      authoritative specification or production system.
