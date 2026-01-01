@@ -18,7 +18,7 @@ This document is descriptive, not normative.
 
 ## Status of the Doctoral Artefact
 
-The PhD thesis *“Hilbert Epistemic Fields and Informational Stability”* and the state of this repository **at the point of doctoral submission** together constitute a **sealed scholarly record**.
+The PhD thesis *“Detecting Disinformation Campaigns in Social Media”* and the state of this repository **at the point of doctoral submission** together constitute a **sealed scholarly record**.
 
 - The thesis remains the authoritative source of all theoretical claims.
 - The repository at submission time is the canonical supplementary artefact.
