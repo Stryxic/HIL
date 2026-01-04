@@ -1,0 +1,318 @@
+openapi: 3.1.0
+info:
+  title: HIL Presentation Kernel API
+  description: >
+    Boundary API between HIL machine diagnostics and human interaction.
+    This API enforces deterministic presentation, explicit human confirmation,
+    and immutable committed artifacts. It performs no measurement or inference.
+  version: "1.0.0"
+
+servers:
+  - url: /api/presentation/v1
+
+tags:
+  - name: state
+    description: Observed, committed, and delta diagnostics
+  - name: control
+    description: Human-gated consolidation
+  - name: render
+    description: Deterministic rendering specifications
+  - name: ui
+    description: Non-instrumental user preferences
+  - name: artifacts
+    description: Upload and download of inert artifacts
+  - name: llm
+    description: Non-instrumental interpretation endpoints
+
+paths:
+
+  /observed:
+    get:
+      tags: [state]
+      summary: Get observed (uncommitted) diagnostics
+      responses:
+        "200":
+          description: Observed diagnostics snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObservedState"
+
+  /committed:
+    get:
+      tags: [state]
+      summary: Get last committed diagnostics
+      responses:
+        "200":
+          description: Committed diagnostics snapshot
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommittedState"
+
+  /delta:
+    get:
+      tags: [state]
+      summary: Get delta between committed and observed states
+      responses:
+        "200":
+          description: Structural delta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DeltaState"
+
+  /refresh:
+    post:
+      tags: [control]
+      summary: Human-confirmed consolidation of observed state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshRequest"
+      responses:
+        "200":
+          description: Commit successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RefreshResponse"
+        "400":
+          description: Confirmation missing or invalid
+
+  /render/spec:
+    get:
+      tags: [render]
+      summary: Get deterministic rendering specification
+      responses:
+        "200":
+          description: Rendering specification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RenderSpec"
+
+  /ui/preferences:
+    post:
+      tags: [ui]
+      summary: Store UI preferences (non-instrumental)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UIPreferences"
+      responses:
+        "204":
+          description: Preferences stored
+
+  /upload:
+    post:
+      tags: [artifacts]
+      summary: Upload inert data or configuration
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              additionalProperties:
+                type: string
+                format: binary
+      responses:
+        "204":
+          description: Upload accepted (no computation triggered)
+
+  /downloads/{commit_id}/{artifact}:
+    get:
+      tags: [artifacts]
+      summary: Download committed artifact
+      parameters:
+        - name: commit_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: artifact
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Artifact file
+          content:
+            application/octet-stream: {}
+
+  /interpret:
+    post:
+      tags: [llm]
+      summary: Request non-instrumental interpretation of an artifact
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InterpretRequest"
+      responses:
+        "200":
+          description: Interpretation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InterpretResponse"
+
+components:
+
+  schemas:
+
+    VersionInfo:
+      type: object
+      properties:
+        core_version:
+          type: string
+        extensions:
+          type: object
+          additionalProperties:
+            type: string
+      required: [core_version]
+
+    ObservedState:
+      type: object
+      properties:
+        state:
+          const: observed
+        timestamp:
+          type: string
+          format: date-time
+        versions:
+          $ref: "#/components/schemas/VersionInfo"
+        diagnostics:
+          type: object
+          description: Provisional diagnostics (uncommitted)
+      required: [state, timestamp, versions, diagnostics]
+
+    CommittedState:
+      type: object
+      properties:
+        state:
+          const: committed
+        commit_id:
+          type: string
+        committed_at:
+          type: string
+          format: date-time
+        versions:
+          $ref: "#/components/schemas/VersionInfo"
+        diagnostics:
+          type: object
+          description: Instrument-certified diagnostics
+      required: [state, commit_id, committed_at, versions, diagnostics]
+
+    DeltaState:
+      type: object
+      properties:
+        from_commit:
+          type: string
+        to_state:
+          const: observed
+        delta:
+          type: object
+          description: Pure geometric differences
+      required: [from_commit, to_state, delta]
+
+    RefreshRequest:
+      type: object
+      properties:
+        user_confirmation:
+          type: boolean
+          const: true
+        label:
+          type: string
+        notes:
+          type: string
+      required: [user_confirmation]
+
+    RefreshResponse:
+      type: object
+      properties:
+        status:
+          const: committed
+        commit_id:
+          type: string
+        committed_at:
+          type: string
+          format: date-time
+        artifact_urls:
+          type: object
+          additionalProperties:
+            type: string
+      required: [status, commit_id, committed_at, artifact_urls]
+
+    RenderSpec:
+      type: object
+      properties:
+        type:
+          type: string
+        coordinate_space:
+          type: string
+        paths:
+          type: array
+          items:
+            type: object
+        bands:
+          type: array
+          items:
+            type: object
+        annotations:
+          type: array
+          items:
+            type: object
+        render_rules:
+          type: object
+          properties:
+            interpolation:
+              type: string
+              enum: [none]
+            smoothing:
+              type: boolean
+            units:
+              type: string
+      required: [type, coordinate_space, paths, render_rules]
+
+    UIPreferences:
+      type: object
+      properties:
+        color_scheme:
+          type: string
+        axis_labels:
+          type: object
+          additionalProperties:
+            type: string
+        hidden_paths:
+          type: array
+          items:
+            type: string
+      additionalProperties: false
+
+    InterpretRequest:
+      type: object
+      properties:
+        artifact:
+          type: string
+        prompt:
+          type: string
+      required: [artifact, prompt]
+
+    InterpretResponse:
+      type: object
+      properties:
+        mode:
+          const: interpretation
+        binding:
+          const: non-instrumental
+        text:
+          type: string
+      required: [mode, binding, text]
