@@ -4,20 +4,20 @@ hil.core.embeddings.lsa
 
 Latent Semantic Analysis (LSA) embedding for HIL.
 
-This module provides a minimal, deterministic LSA implementation to replace
-the current zero-vector scaffold in hil.core.api.build_embedding.
+This module provides a minimal, deterministic LSA implementation suitable
+for constructing structural embeddings from text.
 
 Invariants:
-- Structural, not semantic
+- Structural, not semantic (co-occurrence geometry only)
 - Deterministic given fixed inputs
 - No labels, no topic naming
-- No persistence
-- No adaptive behaviour
+- No persistence, no global state
+- No adaptive or online behavior
 """
 
 from __future__ import annotations
 
-from typing import Iterable, Dict, Tuple, Optional
+from typing import Iterable, Dict, Tuple, Optional, List
 
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
@@ -53,27 +53,30 @@ def build_lsa_embedding(
     documents : iterable of str
         Raw document texts.
     n_components : int
-        Dimensionality of latent space.
+        Target dimensionality of latent space.
     min_df : int
         Minimum document frequency for terms.
     max_df : float
         Maximum document frequency (fraction).
     stop_words : str or None
-        Stop-word handling (passed to sklearn).
+        Stop-word handling (passed through to sklearn).
 
     Returns
     -------
     vectors : np.ndarray
-        Document vectors of shape (n_docs, n_components).
+        Document vectors of shape (n_docs, k), where k <= n_components.
     vocabulary : dict
-        Mapping from term to column index in the original term matrix.
+        Mapping from term to column index in the term-document matrix.
     """
-    docs = list(documents)
+    # ------------------------------------------------------------------
+    # Input normalization and checks
+    # ------------------------------------------------------------------
+    docs: List[str] = [d for d in documents if isinstance(d, str)]
     _lsa_invariant(len(docs) > 0, "documents must be non-empty")
     _lsa_invariant(n_components > 0, "n_components must be > 0")
 
     # ------------------------------------------------------------------
-    # Term-document matrix (counts only; no TF-IDF yet)
+    # Term-document matrix (counts only)
     # ------------------------------------------------------------------
     vectorizer = CountVectorizer(
         min_df=min_df,
@@ -82,25 +85,57 @@ def build_lsa_embedding(
     )
 
     term_doc = vectorizer.fit_transform(docs)
-    _lsa_invariant(term_doc.shape[0] == len(docs), "row count mismatch")
+    _lsa_invariant(
+        term_doc.shape[0] == len(docs),
+        "term-document row count mismatch",
+    )
+
+    # Number of documents and terms
+    n_docs, n_terms = term_doc.shape
+    _lsa_invariant(n_terms > 0, "no terms survived vectorization")
 
     # ------------------------------------------------------------------
-    # SVD
+    # Determine effective rank
     # ------------------------------------------------------------------
-    k = min(n_components, min(term_doc.shape) - 1)
-    _lsa_invariant(k > 0, "effective n_components must be > 0")
+    # TruncatedSVD requires: 1 <= k < min(n_docs, n_terms)
+    max_rank = min(n_docs, n_terms) - 1
+    _lsa_invariant(max_rank >= 1, "insufficient rank for LSA")
 
+    k = min(n_components, max_rank)
+    _lsa_invariant(k >= 1, "effective n_components must be >= 1")
+
+    # ------------------------------------------------------------------
+    # SVD (deterministic)
+    # ------------------------------------------------------------------
+    # NOTE:
+    # - randomized SVD is acceptable here because:
+    #   - random_state is fixed
+    #   - we only require determinism, not exact algebraic equivalence
     svd = TruncatedSVD(
         n_components=k,
         algorithm="randomized",
-        random_state=0,  # determinism
+        random_state=0,
     )
 
     vectors = svd.fit_transform(term_doc)
 
     # ------------------------------------------------------------------
-    # Output
+    # Output normalization
     # ------------------------------------------------------------------
-    vocabulary = vectorizer.vocabulary_
+    _lsa_invariant(
+        vectors.shape == (n_docs, k),
+        "unexpected embedding shape",
+    )
+    _lsa_invariant(
+        np.isfinite(vectors).all(),
+        "embedding contains non-finite values",
+    )
 
-    return vectors.astype(np.float64), vocabulary
+    vocabulary: Dict[str, int] = dict(vectorizer.vocabulary_)
+
+    return vectors.astype(np.float64, copy=False), vocabulary
+
+
+__all__ = [
+    "build_lsa_embedding",
+]

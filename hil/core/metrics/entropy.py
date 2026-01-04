@@ -18,10 +18,18 @@ from typing import Protocol
 import numpy as np
 
 
+# ---------------------------------------------------------------------------
+# Invariants
+# ---------------------------------------------------------------------------
+
 def _metric_invariant(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(f"[hil.core.metrics.entropy invariant] {message}")
 
+
+# ---------------------------------------------------------------------------
+# Graph protocol
+# ---------------------------------------------------------------------------
 
 class _GraphLike(Protocol):
     src: np.ndarray
@@ -29,6 +37,10 @@ class _GraphLike(Protocol):
     weight: np.ndarray
     num_nodes: int
 
+
+# ---------------------------------------------------------------------------
+# Core entropy primitive
+# ---------------------------------------------------------------------------
 
 def _entropy_from_out_strengths(out_strength: np.ndarray) -> float:
     """
@@ -46,13 +58,17 @@ def _entropy_from_out_strengths(out_strength: np.ndarray) -> float:
         return 0.0
 
     p = out_strength / total
-    # Drop zeros to avoid log(0); this is deterministic and lossless for entropy.
+    # Drop zeros to avoid log(0); deterministic and lossless for entropy.
     p = p[p > 0.0]
     if p.size == 0:
         return 0.0
 
     return float(-(p * np.log(p)).sum())
 
+
+# ---------------------------------------------------------------------------
+# Public API
+# ---------------------------------------------------------------------------
 
 def structural_entropy(graph: _GraphLike) -> float:
     """
@@ -63,16 +79,18 @@ def structural_entropy(graph: _GraphLike) -> float:
     - Define a distribution over nodes p_i = out_strength[i] / sum(out_strength).
     - Return Shannon entropy H(p) in natural units (nats).
 
-    This is:
-    - structural (depends only on weighted adjacency mass),
-    - diagnostic (numeric only),
-    - deterministic (pure function).
+    Properties:
+    - Structural (depends only on weighted adjacency mass)
+    - Diagnostic (numeric only)
+    - Deterministic (pure function)
 
     Backend stages:
     - Stage A/B: NumPy implementation (default).
     - Stage C: Optional native backend if hil.core.native._shim.graph_entropy exists.
       Native is strictly an acceleration, not a semantic change.
     """
+
+    # --- Structural sanity ---------------------------------------------------
     _metric_invariant(isinstance(graph.num_nodes, int), "graph.num_nodes must be an int")
     _metric_invariant(graph.num_nodes >= 1, "graph.num_nodes must be >= 1")
 
@@ -82,45 +100,66 @@ def structural_entropy(graph: _GraphLike) -> float:
 
     _metric_invariant(graph.src.shape == graph.dst.shape, "src and dst must have same shape")
     _metric_invariant(graph.weight.shape == graph.src.shape, "weight must match src/dst shape")
+
     _metric_invariant(graph.src.ndim == 1, "src must be 1D")
     _metric_invariant(graph.dst.ndim == 1, "dst must be 1D")
     _metric_invariant(graph.weight.ndim == 1, "weight must be 1D")
 
     m = int(graph.src.size)
     if m == 0:
+        # No edges → no dispersion
         return 0.0
 
-    # Basic numeric sanity (structural weights only)
+    # --- Numeric sanity ------------------------------------------------------
     _metric_invariant(np.all(np.isfinite(graph.weight)), "weights must be finite")
     _metric_invariant(np.all(graph.weight >= 0.0), "weights must be non-negative")
 
-    # Index range sanity
-    _metric_invariant(np.issubdtype(graph.src.dtype, np.integer), "src must be integer dtype")
-    _metric_invariant(np.issubdtype(graph.dst.dtype, np.integer), "dst must be integer dtype")
-    _metric_invariant(int(graph.src.min()) >= 0 and int(graph.src.max()) < graph.num_nodes, "src out of range")
-    _metric_invariant(int(graph.dst.min()) >= 0 and int(graph.dst.max()) < graph.num_nodes, "dst out of range")
+    _metric_invariant(
+        np.issubdtype(graph.src.dtype, np.integer),
+        "src must be integer dtype",
+    )
+    _metric_invariant(
+        np.issubdtype(graph.dst.dtype, np.integer),
+        "dst must be integer dtype",
+    )
 
-    # --- Stage C: optional native backend (acceleration only) ----------------
-    # Native must implement the same definition: entropy over out-strength mass.
+    _metric_invariant(
+        int(graph.src.min()) >= 0 and int(graph.src.max()) < graph.num_nodes,
+        "src indices out of range",
+    )
+    _metric_invariant(
+        int(graph.dst.min()) >= 0 and int(graph.dst.max()) < graph.num_nodes,
+        "dst indices out of range",
+    )
+
+    # --- Stage C: optional native backend -----------------------------------
     try:
-        # Keep import local to preserve core boundary and avoid import-time coupling.
+        # Import locally to preserve core boundary.
         from hil.core.native._shim import graph_entropy as _native_graph_entropy  # type: ignore
     except Exception:
         _native_graph_entropy = None  # type: ignore
 
     if _native_graph_entropy is not None:
         try:
-            # Expect signature: (src, dst, weight, num_nodes) -> float
-            h = float(_native_graph_entropy(graph.src, graph.dst, graph.weight, graph.num_nodes))
+            # Expected signature:
+            # (src: ndarray, dst: ndarray, weight: ndarray, num_nodes: int) -> float
+            h = float(
+                _native_graph_entropy(
+                    graph.src,
+                    graph.dst,
+                    graph.weight,
+                    graph.num_nodes,
+                )
+            )
             _metric_invariant(np.isfinite(h), "native entropy must be finite")
             _metric_invariant(h >= 0.0, "entropy must be >= 0")
             return h
         except Exception:
-            # Fall back to NumPy if native is unavailable or errors.
+            # Fall back to NumPy path on any native failure.
             pass
 
     # --- Stage A/B: NumPy implementation ------------------------------------
-    # Out-strength per node (sum weights grouped by src).
+    # Out-strength per node: sum of outgoing weights grouped by src.
     out_strength = np.bincount(
         graph.src.astype(np.int64, copy=False),
         weights=graph.weight.astype(np.float64, copy=False),

@@ -26,16 +26,21 @@ from typing import Any, Dict, Iterable, Optional
 import numpy as np
 
 from hil.core.structure.graph import Graph
+from hil.core.embeddings.lsa import build_lsa_embedding
 
 
-# --- Core guardrails ---------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Core guardrails
+# ---------------------------------------------------------------------------
 
 def _core_invariant(condition: bool, message: str) -> None:
     if not condition:
         raise ValueError(f"[hil.core invariant] {message}")
 
 
-# --- Minimal core data carriers ---------------------------------------------
+# ---------------------------------------------------------------------------
+# Core data carriers (pure, immutable)
+# ---------------------------------------------------------------------------
 
 @dataclass(frozen=True)
 class CoreEmbedding:
@@ -49,32 +54,50 @@ class CoreField:
     metadata: Optional[Dict[str, Any]] = None
 
 
-# --- API functions -----------------------------------------------------------
+# ---------------------------------------------------------------------------
+# API functions
+# ---------------------------------------------------------------------------
 
 def build_embedding(
     documents: Iterable[str],
     *,
     n_components: int = 300,
-    vocabulary: Optional[Dict[str, int]] = None,
 ) -> CoreEmbedding:
     """
     Build an embedding space for a given set of documents.
 
-    Stub: implementation will call `hil.core.embeddings.vocabulary` and `lsa`.
+    Implementation:
+    - Deterministic Latent Semantic Analysis (LSA)
+    - Purely structural (term co-occurrence geometry)
+    - No semantic interpretation
+
     Invariants:
-    - No IO (documents are provided as strings)
-    - Deterministic output given same inputs
+    - No IO (documents provided as strings)
+    - Deterministic output for fixed inputs
     """
     _core_invariant(n_components > 0, "n_components must be > 0")
 
     docs = list(documents)
     _core_invariant(len(docs) > 0, "documents must be non-empty")
 
-    # Placeholder embedding: deterministic, shape-correct
-    vecs = np.zeros((len(docs), n_components), dtype=np.float64)
-    vocab = vocabulary or {}
+    vectors, vocabulary = build_lsa_embedding(
+        docs,
+        n_components=n_components,
+    )
 
-    return CoreEmbedding(vectors=vecs, vocabulary=vocab)
+    _core_invariant(
+        vectors.shape[0] == len(docs),
+        "embedding row count must match number of documents",
+    )
+    _core_invariant(
+        vectors.ndim == 2,
+        "embedding vectors must be 2D",
+    )
+
+    return CoreEmbedding(
+        vectors=vectors,
+        vocabulary=vocabulary,
+    )
 
 
 def build_field(
@@ -83,7 +106,7 @@ def build_field(
     metadata: Optional[Dict[str, Any]] = None,
 ) -> CoreField:
     """
-    Construct a field object from embedding vectors.
+    Construct a Hilbert Epistemic Field from embedding vectors.
 
     Invariants:
     - Field is a mathematical object (vectors + optional metadata)
@@ -98,33 +121,53 @@ def build_field(
         "embedding.vectors must be 2D (n, d)",
     )
 
-    return CoreField(vectors=embedding.vectors, metadata=metadata)
+    return CoreField(
+        vectors=embedding.vectors,
+        metadata=metadata,
+    )
 
 
-def build_structure(
-    field: CoreField,
-) -> Graph:
+def build_structure(field: CoreField) -> Graph:
     """
-    Construct a structural graph from a field.
+    Construct structural graph from a field.
 
-    This is a *temporary scaffold* for the sanity run:
-    - empty edge set
-    - correct node count
-    - deterministic
-    - explicitly non-heuristic
+    Minimal calibration implementation:
+    - Fully-connected undirected cosine graph (i < j)
+    - Non-negative weights by shifting cosine similarity into [0, 1]
+      w = (cos + 1) / 2
 
-    Invariants:
-    - Structure is derived deterministically
-    - No semantic interpretation or labels
+    Properties:
+    - Structural (geometry only)
+    - Deterministic
+    - Label-free
     """
     _core_invariant(field.vectors.ndim == 2, "field.vectors must be 2D")
-    n = int(field.vectors.shape[0])
+
+    X = field.vectors.astype(np.float64, copy=False)
+    n = int(X.shape[0])
     _core_invariant(n >= 1, "field must have at least one vector")
 
-    # Empty structural scaffold (valid graph)
-    src = np.zeros((0,), dtype=np.uint32)
-    dst = np.zeros((0,), dtype=np.uint32)
-    w = np.zeros((0,), dtype=np.float64)
+    # Normalize rows deterministically
+    norms = np.linalg.norm(X, axis=1, keepdims=True)
+    norms[norms == 0.0] = 1.0
+    V = X / norms
+
+    src_list: list[int] = []
+    dst_list: list[int] = []
+    w_list: list[float] = []
+
+    for i in range(n):
+        vi = V[i]
+        for j in range(i + 1, n):
+            cos = float(np.dot(vi, V[j]))
+            w = (cos + 1.0) * 0.5  # shift to [0, 1]
+            src_list.append(i)
+            dst_list.append(j)
+            w_list.append(w)
+
+    src = np.asarray(src_list, dtype=np.int32)
+    dst = np.asarray(dst_list, dtype=np.int32)
+    w = np.asarray(w_list, dtype=np.float64)
 
     return Graph(
         src=src,
