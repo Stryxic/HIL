@@ -1,0 +1,110 @@
+{
+  "status": "frozen",
+  "scope": "HIL Core",
+  "version": "1.2.0",
+  "generated_at": "2026-01-06T00:00:00Z",
+  "description": "Formal metric registry for the HIL Presentation Kernel. All exposed machine-facing endpoints are declared prior to instrument startup. Authorities are explicitly classified to preserve epistemic boundaries.",
+  "metrics": [
+    {
+      "metric_id": "state.observed",
+      "endpoint": "/api/presentation/v1/observed",
+      "authority": "instrument",
+      "description": "Live observed instrument state (read-only, non-committal).",
+      "dependencies": []
+    },
+    {
+      "metric_id": "state.committed",
+      "endpoint": "/api/presentation/v1/committed",
+      "authority": "human-gated",
+      "description": "Last human-committed instrument state.",
+      "dependencies": [
+        "state.observed"
+      ]
+    },
+    {
+      "metric_id": "diagnostic.commit.delta",
+      "endpoint": "/api/presentation/v1/delta",
+      "authority": "instrument",
+      "description": "Structural delta between committed and observed instrument state.",
+      "dependencies": [
+        "state.observed",
+        "state.committed"
+      ]
+    },
+    {
+      "metric_id": "trust.internal.calibration",
+      "endpoint": "/api/presentation/v1/internal/calibration",
+      "authority": "trust-anchor",
+      "description": "Integrity verification of the frozen internal corpus manifest.",
+      "dependencies": []
+    },
+    {
+      "metric_id": "invariant.internal.timebase",
+      "endpoint": "/api/presentation/v1/internal/timebase",
+      "authority": "invariant",
+      "description": "Certified minimum viable timebase derived deterministically from internal corpus material.",
+      "dependencies": [
+        "trust.internal.calibration"
+      ]
+    },
+    {
+      "metric_id": "render.seed",
+      "endpoint": "/api/presentation/v1/render/seed",
+      "authority": "instrument",
+      "description": "Deterministic geometric seed derived from calibration and invariants. Provides initial epistemic field geometry for rendering.",
+      "dependencies": [
+        "trust.internal.calibration",
+        "invariant.internal.timebase"
+      ]
+    },
+    {
+      "metric_id": "render.spec",
+      "endpoint": "/api/presentation/v1/render/spec",
+      "authority": "instrument",
+      "description": "Deterministic rendering specification for Hilbert paths and diagnostic geometry.",
+      "dependencies": [
+        "state.observed",
+        "render.seed"
+      ]
+    },
+    {
+      "metric_id": "human.refresh",
+      "endpoint": "/api/presentation/v1/refresh",
+      "authority": "human-gated",
+      "description": "Human-gated commit of the current observed state.",
+      "dependencies": [
+        "state.observed"
+      ]
+    },
+    {
+      "metric_id": "transport.download.artifact",
+      "endpoint": "/api/presentation/v1/downloads/{commit_id}/{artifact}",
+      "authority": "transport",
+      "description": "Transport-only access to immutable committed artifacts. No measurement or interpretation occurs.",
+      "dependencies": [
+        "state.committed"
+      ]
+    },
+    {
+      "metric_id": "interpretation.text",
+      "endpoint": "/api/presentation/v1/interpret",
+      "authority": "interpretive",
+      "description": "Explicitly non-instrumental interpretive text generation.",
+      "dependencies": []
+    },
+    {
+      "metric_id": "ui.preferences",
+      "endpoint": "/api/presentation/v1/ui/preferences",
+      "authority": "transport",
+      "description": "Non-instrumental user interface preferences. Does not affect measurements or state.",
+      "dependencies": []
+    },
+    {
+      "metric_id": "transport.upload",
+      "endpoint": "/api/presentation/v1/upload",
+      "authority": "transport",
+      "description": "Transport-only upload endpoint. Uploaded material is inert until explicitly referenced by a human-gated action.",
+      "dependencies": []
+    }
+  ]
+}

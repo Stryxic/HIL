@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HIL — Epistemic Field Viewer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    /* ============================================================
+       GLOBAL RESET
+       ============================================================ */
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: #0b0c10;
+      color: #e6e6e6;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      overflow: hidden;
+    }
+
+    /* ============================================================
+       HEADER (MINIMAL, NON-INTERACTIVE)
+       ============================================================ */
+
+    header {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      padding: 10px 18px;
+      box-sizing: border-box;
+      background: linear-gradient(
+        to bottom,
+        rgba(11,12,16,0.92),
+        rgba(11,12,16,0.65)
+      );
+      border-bottom: 1px solid #2a2d36;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    header p {
+      margin: 2px 0 0 0;
+      font-size: 11px;
+      color: #a7a7a7;
+    }
+
+    /* ============================================================
+       CANVAS CONTAINER
+       ============================================================ */
+
+    #hilbert-canvas-container {
+      position: absolute;
+      inset: 0;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ============================================================
+       FOOTNOTE / MODE LABEL
+       ============================================================ */
+
+    .mode-indicator {
+      position: absolute;
+      bottom: 10px;
+      left: 14px;
+      font-size: 11px;
+      color: #8b8b8b;
+      z-index: 10;
+      pointer-events: none;
+      opacity: 0.85;
+    }
+
+    .mode-indicator code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      color: #7aa2f7;
+    }
+  </style>
+</head>
+
+<body data-hil-instrument="read-only">
+
+  <!-- ============================================================
+       MINIMAL CONTEXT HEADER
+       ============================================================ -->
+  <header>
+    <h1>Hilbert Information Laboratory</h1>
+    <p>Read-only epistemic field · invariant-governed · diagnostic view</p>
+  </header>
+
+  <!-- ============================================================
+       FULLSCREEN CANVAS
+       ============================================================ -->
+  <div id="hilbert-canvas-container">
+    <canvas id="hilbert-canvas"></canvas>
+  </div>
+
+  <!-- ============================================================
+       MODE / AUTHORITY LABEL
+       ============================================================ -->
+  <div class="mode-indicator">
+    Mode: <code>instrument · presentation-only</code><br />
+    Input: <code>/api/presentation/v1/render/spec</code>
+  </div>
+
+  <!-- ============================================================
+       MODULE LOADER
+       ============================================================ -->
+  <!--
+    hilbert_canvas.js is responsible for:
+      - fetching render spec
+      - building scene
+      - pan / rotate / zoom
+      - hit testing
+      - zero mutation
+  -->
+  <script type="module" src="/static/hilbert_canvas.js"></script>
+
+</body>
+</html>

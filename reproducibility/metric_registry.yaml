@@ -1,0 +1,62 @@
+status: frozen
+scope: HIL Core
+version: "1.0.0"
+generated_at: "2026-01-04T00:00:00Z"
+description: >
+  Formal metric registry for the HIL Presentation Kernel.
+  All exposed metrics are declared prior to instrument startup.
+
+metrics:
+  - metric_id: state.observed
+    endpoint: /api/presentation/v1/observed
+    authority: instrument
+    description: Live observed instrument state (read-only).
+    dependencies: []
+
+  - metric_id: state.committed
+    endpoint: /api/presentation/v1/committed
+    authority: human-gated
+    description: Last human-committed instrument state.
+    dependencies:
+      - state.observed
+
+  - metric_id: diagnostic.commit.delta
+    endpoint: /api/presentation/v1/delta
+    authority: instrument
+    description: Structural delta between committed and observed instrument state.
+    dependencies:
+      - state.observed
+      - state.committed
+
+  - metric_id: trust.internal.calibration
+    endpoint: /api/presentation/v1/internal/calibration
+    authority: trust-anchor
+    description: Integrity verification of the frozen internal corpus manifest.
+    dependencies: []
+
+  - metric_id: invariant.internal.timebase
+    endpoint: /api/presentation/v1/internal/timebase
+    authority: invariant
+    description: Certified minimum viable timebase derived from internal corpus.
+    dependencies:
+      - trust.internal.calibration
+
+  - metric_id: render.spec
+    endpoint: /api/presentation/v1/render/spec
+    authority: instrument
+    description: Deterministic rendering specification for Hilbert paths.
+    dependencies:
+      - state.observed
+
+  - metric_id: human.refresh
+    endpoint: /api/presentation/v1/refresh
+    authority: human-gated
+    description: Human-gated commit of the current observed state.
+    dependencies:
+      - state.observed
+
+  - metric_id: interpretation.text
+    endpoint: /api/presentation/v1/interpret
+    authority: interpretive
+    description: Non-instrumental interpretive text generation.
+    dependencies: []
